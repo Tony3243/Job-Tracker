@@ -9,8 +9,11 @@ export const getAllJobs = async() => {
         const response = await axios.get(`${baseURL}/jobs`)
         return response.data
     } catch(err) {
-        console.log(`Getting Error: ${err}`)
-        throw err
+        if(err.response?.status === 500) {
+            console.error(err)
+            throw new Error("Server Error. Please try again.")
+        }
+        throw new Error("Failed to load Jobs due to server. Please try again.")
     }
 }
 
@@ -19,8 +22,15 @@ export const createJob = async(jobData) => {
         const response = await axios.post(`${baseURL}/jobs`, jobData)
         return response.data
     }catch(err) {
-        console.log(`Creating Error: ${err}`)
-        throw err
+        if(err.response?.status === 400) {
+            throw new Error("Invalid inputs. Please try again.")
+        } else if (err.response?.status === 500) {
+            throw new Error("Server Error. Please try again.")
+        } else if (err.response?.status === "ERR_NETWORK") {
+            throw new Error("Please connect to the network.")
+        } else {
+            throw new Error("Failed to create job. Please try again.")
+        }
     }
 }
 
@@ -29,8 +39,15 @@ export const updateJob = async(id, jobData) => {
         const response = await axios.patch(`${baseURL}/jobs/${id}`, jobData)
         return response.data
     }catch(err) {
-        console.log(`Patch Error: ${err}`)
-        throw err
+        if(err.response?.status === 400) {
+            throw new Error("Invalid inputs. Please try again.")
+        } else if (err.response?.status === 500) {
+            throw new Error("Server Error. Please try again.")
+        } else if (err.code === "ERR_NETWORK") {
+            throw new Error("Please connect to the network.")
+        } else {
+            throw new Error("Failed to create job. Please try again.")
+        }
     }
 }
 
@@ -39,7 +56,12 @@ export const deleteJob = async(id) => {
         const response = await axios.delete(`${baseURL}/jobs/${id}`)
         return response.data
     }catch(err) {
-        console.log(`Deleting Error: ${err}`)
-        throw err
+       if(err.response?.status === 404) {
+        throw new Error("Job not Found. I may have been deleted")
+       } else if (err.response?.status === 500) {
+        throw new Error("Server Error. Unable to delete Job")
+       } else {
+        throw new Error("Failed to delete Job")
+       }
     }
 }

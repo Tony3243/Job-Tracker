@@ -15,14 +15,21 @@ function Main() {
     const [filtering, setFiltering] = React.useState("All")
 
     React.useEffect(() => {
+        if(error) {
+            const timer = setTimeout(() => setError(null), 5000);
+            return (() => clearTimeout(timer))
+        }
+    }, [error])
+
+    React.useEffect(() => {
         async function fetchingdata() {
             try {
                 const data = await getAllJobs()
                 setJobs(data.jobs);
                 setLoading(false);
-                setError(null)
+                //setError(null)
             } catch(err) {
-                setError("The data could not be retrieved")
+                setError(err.message)
             } finally {
                 setLoading(false)
             }
@@ -38,7 +45,11 @@ function Main() {
     )
     return (
         <div>
-            {loading ? <div>Loading...</div> : error ? <div>Error: {error}</div> : null}
+            {loading &&(<div className="loading">Loading...</div>)}
+            {error && (<div className="error-message">
+                {error}
+                <button onClick={(() => setError(null))}>Dismiss</button>
+            </div>)}
             <JobForm setJobs={setJobs} jobs={jobs}/> <Filtering filtering={filtering} setFiltering={setFiltering}/>
             <div className='jobList'>{mappingStatus}</div>
         </div>

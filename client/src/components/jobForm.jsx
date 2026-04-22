@@ -11,8 +11,16 @@ export default function JobForm({setJobs, jobs}) {
         applicationDate: "",
         notes: ""
     })
+    const [error, setError] = React.useState(false)
+    const [add, setAdd] = React.useState(false) //adding
+    const [submitting, setSubmitting] = React.useState(false)//state to show indication when creating a job
 
-    const [add, setAdd] = React.useState(false)
+    React.useEffect(() => {
+        if(error) {
+            const timer = setTimeout(() => setError(null), 5000);
+            return (() => clearTimeout(timer))
+        }
+    }, [error])
 
     const handleChange = (e) => { //this function handles all the changes(typing) in the input field
     //e.target.name specifies which column is the client is currently editing
@@ -27,6 +35,7 @@ export default function JobForm({setJobs, jobs}) {
     //this function handles updating our jobs list with newly created Jobs
     const handleSubmit = async(e) => {
         e.preventDefault()//prevents page from refreshing
+        setSubmitting(true)//start loading
         try {
             const newJob = await createJob(dataForm) //sends imformation to the backend and it saves data into the database
             setJobs([...jobs, newJob]) //calls setJobs to create a new job with our existing jobs
@@ -39,8 +48,10 @@ export default function JobForm({setJobs, jobs}) {
             })
             setAdd(false)
         } catch(err) {
-            console.error(`${err}`)
-            alert("Something went wrong, try again later")
+            setError(err.message)
+            console.log(err)
+        } finally {
+            setSubmitting(false)
         }
     }
 
@@ -52,6 +63,11 @@ export default function JobForm({setJobs, jobs}) {
         <main className='createdJob'>
             <button onClick={handleToggle}>Add Job</button>
             { add && (<form id="myForm" onSubmit={handleSubmit} className='form'>
+                {error && ( 
+                <div className="error-message">
+                    {error}
+                    <button onClick={() => setError(null)}>Dismiss</button>
+                </div>)}
                 <input type="text" 
                         placeholder='Company Name'
                         name="companyName"
@@ -88,8 +104,9 @@ export default function JobForm({setJobs, jobs}) {
                         onChange={handleChange}
                         required
                 />
-                <button type='submit'>Add</button>
+                <button type='submit'disabled={submitting}>{submitting ? "...Adding" : "Add Job"}</button>
             </form>)}
+            {/*displays error message if adding a job doesn't work*/}
         </main>
     )
 }

@@ -64,3 +64,20 @@ header {
     border-radius: 5px;
     padding: 16px;
 }
+
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 20px;
+    font-size: large;
+}
+
+.error-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: red;
+    border: solid 5px;
+    padding: 5px;
+}
