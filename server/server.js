@@ -10,6 +10,8 @@ app.use(express.json())//parses incoming request from the client
 
 app.use(cors())//is a way to authorize any data from being sent if the Client side request the data
 
+export default app
+
 //http://localhost:8000/api/test
 app.get('/api/test', (req, res) => {
     res.json({message: "hello world!"})
